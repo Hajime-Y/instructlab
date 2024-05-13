@@ -409,12 +409,14 @@ def get_version(contents: Mapping) -> int:
 def read_taxonomy_file(
     logger: Logger, file_path: str, yaml_rules: Optional[str] = None
 ):
+    print(f"read_taxonomy_file: {file_path}, {yaml_rules}")
     seed_instruction_data = []
     warnings = 0
     errors = 0
     file_path = Path(file_path).resolve()
     # file should end with ".yaml" explicitly
     if file_path.suffix != ".yaml":
+        print(f"Skipping {file_path}! Use lowercase '.yaml' extension instead.")
         logger.warn(f"Skipping {file_path}! Use lowercase '.yaml' extension instead.")
         warnings += 1
         return None, warnings, errors
@@ -429,6 +431,7 @@ def read_taxonomy_file(
         with open(file_path, "r", encoding="utf-8") as file:
             contents = yaml.safe_load(file)
         if not contents:
+            print(f"Skipping {file_path} because it is empty!")
             logger.warn(f"Skipping {file_path} because it is empty!")
             warnings += 1
             return None, warnings, errors
@@ -439,6 +442,7 @@ def read_taxonomy_file(
             if yaml_rules is not None:
                 is_file = os.path.isfile(yaml_rules)
                 if is_file:
+                    print(f"Using YAML rules from {yaml_rules}")
                     logger.debug(f"Using YAML rules from {yaml_rules}")
                     yamllint_cmd = [
                         "yamllint",
@@ -450,6 +454,7 @@ def read_taxonomy_file(
                         "-s",
                     ]
                 else:
+                    print(f"Cannot find {yaml_rules}. Using default rules.")
                     logger.debug(f"Cannot find {yaml_rules}. Using default rules.")
                     yamllint_cmd = [
                         "yamllint",
@@ -480,6 +485,7 @@ def read_taxonomy_file(
                     delim = str(file_path) + ":"
                     parsed_p = p.split(delim)[1]
                     lint_messages.append(parsed_p)
+                print("error: "+"\n".join(lint_messages))
                 logger.error("\n".join(lint_messages))
                 return None, warnings, errors
 
@@ -494,6 +500,7 @@ def read_taxonomy_file(
         documents = contents.get("document")
         if documents:
             documents = get_documents(source=documents, logger=logger)
+            print("Content from git repo fetched")
             logger.debug("Content from git repo fetched")
 
         for seed_example in contents.get("seed_examples"):
@@ -534,7 +541,7 @@ def read_taxonomy(logger, taxonomy, taxonomy_base, yaml_rules):
             raise SystemExit(yaml.YAMLError("Taxonomy file with errors! Exiting."))
     else:  # taxonomy is dir
         # Gather the new or changed YAMLs using git diff
-        print(f"else read_taxonomy: is_file ({taxonomy}, {taxonomy_base}, {yaml_rules})")
+        print(f"read_taxonomy: else ({taxonomy}, {taxonomy_base}, {yaml_rules})")
         updated_taxonomy_files = get_taxonomy_diff(taxonomy, taxonomy_base)
         total_errors = 0
         total_warnings = 0
@@ -544,6 +551,7 @@ def read_taxonomy(logger, taxonomy, taxonomy_base, yaml_rules):
             for e in updated_taxonomy_files:
                 logger.debug(f"* {e}")
         for f in updated_taxonomy_files:
+            print(f"file: {f}")
             file_path = os.path.join(taxonomy, f)
             data, warnings, errors = read_taxonomy_file(logger, file_path, yaml_rules)
             total_warnings += warnings
