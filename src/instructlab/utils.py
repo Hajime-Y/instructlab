@@ -144,8 +144,10 @@ def istaxonomyfile(fn):
 def get_taxonomy_diff(repo="taxonomy", base="origin/main"):
     repo = git.Repo(repo)
     untracked_files = [u for u in repo.untracked_files if istaxonomyfile(u)]
+    print(f"untracked_files: {untracked_files}")
 
     branches = [b.name for b in repo.branches]
+    print(f"branches: {branches}")
 
     head_commit = None
     if "/" in base:
@@ -543,6 +545,7 @@ def read_taxonomy(logger, taxonomy, taxonomy_base, yaml_rules):
         # Gather the new or changed YAMLs using git diff
         print(f"read_taxonomy: else ({taxonomy}, {taxonomy_base}, {yaml_rules})")
         updated_taxonomy_files = get_taxonomy_diff(taxonomy, taxonomy_base)
+        print(f"updated_taxonomy_files: {updated_taxonomy_files}")
         total_errors = 0
         total_warnings = 0
         if updated_taxonomy_files:
