@@ -521,10 +521,12 @@ def read_taxonomy(logger, taxonomy, taxonomy_base, yaml_rules):
     seed_instruction_data = []
     is_file = os.path.isfile(taxonomy)
     if is_file:  # taxonomy is file
+        print(f"read_taxonomy: is_file ({taxonomy}, {taxonomy_base}, {yaml_rules})")
         seed_instruction_data, warnings, errors = read_taxonomy_file(
             logger, taxonomy, yaml_rules
         )
         if warnings:
+            print(f"{warnings} warnings (see above) due to taxonomy file not (fully) usable.")
             logger.warn(
                 f"{warnings} warnings (see above) due to taxonomy file not (fully) usable."
             )
@@ -532,10 +534,12 @@ def read_taxonomy(logger, taxonomy, taxonomy_base, yaml_rules):
             raise SystemExit(yaml.YAMLError("Taxonomy file with errors! Exiting."))
     else:  # taxonomy is dir
         # Gather the new or changed YAMLs using git diff
+        print(f"else read_taxonomy: is_file ({taxonomy}, {taxonomy_base}, {yaml_rules})")
         updated_taxonomy_files = get_taxonomy_diff(taxonomy, taxonomy_base)
         total_errors = 0
         total_warnings = 0
         if updated_taxonomy_files:
+            print("Found new taxonomy files:")
             logger.debug("Found new taxonomy files:")
             for e in updated_taxonomy_files:
                 logger.debug(f"* {e}")
@@ -547,6 +551,7 @@ def read_taxonomy(logger, taxonomy, taxonomy_base, yaml_rules):
             if data:
                 seed_instruction_data.extend(data)
         if total_warnings:
+            print(f"{total_warnings} warnings (see above) due to taxonomy files that were not (fully) usable.")
             logger.warn(
                 f"{total_warnings} warnings (see above) due to taxonomy files that were not (fully) usable."
             )
