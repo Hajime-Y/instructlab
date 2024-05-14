@@ -190,6 +190,7 @@ def post_process_gpt3_response(num_prompt_instructions, response, discarded_file
 
         splitted_data = re.split(r"\*\*\s+(Instruction|Input|Output):?", inst)
         if len(splitted_data) != 7:
+            print(f"Discarded instruction(didn't match expected format): {len(splitted_data)}")
             writeline2file(
                 discarded_file,
                 "Discarded instruction(didn't match expected format): " + repr(inst),
@@ -277,12 +278,9 @@ def get_instructions_from_model(
     for _ in range(request_batch_size):
         # only sampling from the seed tasks
         try:
-            print(f"instruction_data_pool: {instruction_data_pool}")
-            print(f"num_prompt_instructions: {num_prompt_instructions}")
             prompt_instructions = random.sample(
                 instruction_data_pool, num_prompt_instructions
             )
-            print(f"prompt_instructions: {prompt_instructions}")
         except ValueError as exc:
             raise GenerateException(
                 f"There was a problem with the new data, please make sure the "
@@ -290,7 +288,9 @@ def get_instructions_from_model(
                 f"new data({num_prompt_instructions}+ Q&A))"
             ) from exc
         prompt = encode_prompt(prompt_instructions, prompt_template)
+        print("↓==============================↓")
         print(f"prompt: {prompt}")
+        print("↑==============================↑")
         batch_inputs.append(prompt)
     decoding_args = utils.OpenAIDecodingArguments(
         temperature=temperature,
@@ -314,7 +314,9 @@ def get_instructions_from_model(
         batch_size=request_batch_size,
         decoding_args=decoding_args,
     )
+    print("↓==============================↓")
     print(f"results: {results}")
+    print("↑==============================↑")
     request_duration = time.time() - request_start
 
     post_process_start = time.time()
