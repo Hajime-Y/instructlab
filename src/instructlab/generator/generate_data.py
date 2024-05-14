@@ -314,7 +314,7 @@ def get_instructions_from_model(
         batch_size=request_batch_size,
         decoding_args=decoding_args,
     )
-    print(f"result: {result}")
+    print(f"results: {results}")
     request_duration = time.time() - request_start
 
     post_process_start = time.time()
