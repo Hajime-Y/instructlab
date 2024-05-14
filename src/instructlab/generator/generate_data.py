@@ -277,9 +277,12 @@ def get_instructions_from_model(
     for _ in range(request_batch_size):
         # only sampling from the seed tasks
         try:
+            print(f"instruction_data_pool: {instruction_data_pool}")
+            print(f"num_prompt_instructions: {num_prompt_instructions}")
             prompt_instructions = random.sample(
                 instruction_data_pool, num_prompt_instructions
             )
+            print(f"prompt_instructions: {prompt_instructions}")
         except ValueError as exc:
             raise GenerateException(
                 f"There was a problem with the new data, please make sure the "
@@ -287,6 +290,7 @@ def get_instructions_from_model(
                 f"new data({num_prompt_instructions}+ Q&A))"
             ) from exc
         prompt = encode_prompt(prompt_instructions, prompt_template)
+        print(f"prompt: {prompt}")
         batch_inputs.append(prompt)
     decoding_args = utils.OpenAIDecodingArguments(
         temperature=temperature,
@@ -310,6 +314,7 @@ def get_instructions_from_model(
         batch_size=request_batch_size,
         decoding_args=decoding_args,
     )
+    print(f"result: {result}")
     request_duration = time.time() - request_start
 
     post_process_start = time.time()
@@ -378,6 +383,7 @@ def generate_data(
         raise SystemExit(f"Error: taxonomy ({taxonomy}) does not exist.")
 
     seeds = len(seed_instruction_data)
+    print(f"Loaded {seeds} human-written seed instructions from {taxonomy}")
     logger.debug(f"Loaded {seeds} human-written seed instructions from {taxonomy}")
     if not seeds:
         raise SystemExit("Nothing to generate. Exiting.")
