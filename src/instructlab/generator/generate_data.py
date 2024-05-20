@@ -89,6 +89,36 @@ Here are some examples to help you understand the type of questions that are ask
 {% endif -%}[/INST]
 """
 
+DEFAULT_PROMPT_TEMPLATE_MIXTRAL_JA = """\
+<s> [INST]You are a very knowledgeable AI Assistant that will faithfully assist the user with their task. You are asked to come up with a set of 5 diverse task instructions under {{taxonomy}}{{" for the task \\"%s\\""|format(task_description)  if task_description}}. These task instructions will be given to a GPT model and we will evaluate the GPT model for completing the instructions.
+Here are the requirements:
+1. Try not to repeat the verb for each instruction to maximize diversity.
+2. The language used for the instruction also should be diverse. For example, you should combine questions with imperative instructions.
+{% if not document -%}
+3. The type of instructions should not have topic diversity. The list should follow the same topic and category.
+{% else -%}
+3. The type of instructions should be similar to provided examples. The generated instruction and the output should be grounded in the provided document.
+{% endif -%}
+4. A GPT language model should be able to complete the instruction. For example, do not ask the assistant to create any visual or audio output. For another example, do not ask the assistant to wake you up at 5pm or set a reminder because it cannot perform any action.
+5. The instructions, inputs and outputs mast be in Japanese. English must not be used.
+6. The instructions should be 1 to 2 sentences long. Either an imperative sentence or a question is permitted.
+{% if not document -%}
+7. You should generate an appropriate input to the instruction. The input field should contain a specific example provided for the instruction. It should involve realistic data and should not contain simple placeholders. The input should provide substantial content to make the instruction challenging but should ideally not exceed 100 words.
+8. Not all instructions require input. For example, when an instruction asks about some general information, "what is the highest peak in the world", it is not necessary to provide a specific context. In this case, we simply put "<noinput>" in the input field.
+9. The output should be an appropriate response to the instruction and the input. Make sure the output is less than 100 words.
+{% else -%}
+7. The output should be an appropriate response to the input and the instruction. Long outputs are preferable.
+{% endif %}
+{% if not document -%}
+List of 5 tasks:
+{% else -%}
+Based on below document provide a list of 5 tasks:
+Document:
+{{document}}
+Here are some examples to help you understand the type of questions that are asked for this document:
+{% endif -%}[/INST]
+"""
+
 _WORD_DENYLIST = [
     "image",
     "images",
@@ -111,7 +141,7 @@ _WORD_DENYLIST = [
 ]
 
 
-def check_prompt_file(prompt_file_path, model_family):
+def check_prompt_file(prompt_file_path, model_family, output_language):
     """Check for prompt file."""
     try:
         with open(prompt_file_path, encoding="utf=8") as file:
@@ -124,6 +154,8 @@ def check_prompt_file(prompt_file_path, model_family):
             prompt_template = DEFAULT_PROMPT_TEMPLATE_MERLINITE
         elif model_family == "mixtral":
             prompt_template = DEFAULT_PROMPT_TEMPLATE_MIXTRAL
+            if output_language=="Japanese":
+                prompt_template = DEFAULT_PROMPT_TEMPLATE_MIXTRAL_JA
         else:
             raise ValueError(f"Unsupported family '{model_family}': {exc}") from exc
     prompt_template = prompt_template.strip() + "\n"
@@ -367,6 +399,7 @@ def generate_data(
     tls_client_cert: Optional[str] = None,
     tls_client_key: Optional[str] = None,
     tls_client_passwd: Optional[str] = None,
+    output_language="English",
 ):
     seed_instruction_data = []
     generate_start = time.time()

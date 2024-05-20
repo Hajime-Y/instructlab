@@ -449,6 +449,11 @@ def serve(ctx, model_path, gpu_layers, num_threads, max_ctx_size, model_family):
     default="merlinite",
     help="model family to use when picking a generation template",
 )
+@click.option(
+    "--output-language",
+    default="English",
+    help="Language of the generated synthetic data",
+)
 @click.pass_context
 def generate(
     ctx,
@@ -470,6 +475,7 @@ def generate(
     tls_client_key,
     tls_client_passwd,
     model_family,
+    output_language,
 ):
     """Generates synthetic data to enhance your example data"""
     # pylint: disable=C0415
@@ -540,6 +546,7 @@ def generate(
             tls_client_cert=tls_client_cert,
             tls_client_key=tls_client_key,
             tls_client_passwd=tls_client_passwd,
+            output_language=output_language,
         )
     except GenerateException as exc:
         click.secho(
