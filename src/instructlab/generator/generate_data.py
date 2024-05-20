@@ -100,7 +100,7 @@ Here are the requirements:
 3. The type of instructions should be similar to provided examples. The generated instruction and the output should be grounded in the provided document.
 {% endif -%}
 4. A GPT language model should be able to complete the instruction. For example, do not ask the assistant to create any visual or audio output. For another example, do not ask the assistant to wake you up at 5pm or set a reminder because it cannot perform any action.
-5. The instructions, inputs and outputs mast be in Japanese. English must not be used.
+5. Examples of tasks are given in English. However, The instructions, inputs and outputs you create must be in Japanese. English must not be used.
 6. The instructions should be 1 to 2 sentences long. Either an imperative sentence or a question is permitted.
 {% if not document -%}
 7. You should generate an appropriate input to the instruction. The input field should contain a specific example provided for the instruction. It should involve realistic data and should not contain simple placeholders. The input should provide substantial content to make the instruction challenging but should ideally not exceed 100 words.
