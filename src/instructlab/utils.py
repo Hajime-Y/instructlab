@@ -283,7 +283,7 @@ def chunk_document(documents: List, server_ctx_size, chunk_word_count) -> List[s
 
 
 # pylint: disable=unused-argument
-def get_sysprompt(model=None):
+def get_sysprompt(model=None, output_language="English"):
     """
     Gets a system prompt specific to a model
     Args:
@@ -291,7 +291,8 @@ def get_sysprompt(model=None):
     Returns:
         str: The system prompt for the model being used
     """
-    return common.SYS_PROMPT
+    sys_prompt = common.SYS_PROMPT if output_language!="Japanese" else common.SYS_PROMPT_JA
+    return sys_prompt
 
 
 @cache

@@ -443,7 +443,7 @@ def generate_data(
         try:
             test_data.append(
                 {
-                    "system": utils.get_sysprompt(),
+                    "system": utils.get_sysprompt(output_language=output_language),
                     "user": unescape(user),
                     "assistant": unescape(seed_example["output"]),
                 }
